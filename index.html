@@ -1,0 +1,1646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DealsByCreator — Best Picks & Deals</title>
+
+  <!-- ✏️ EDIT: Change the tab title above -->
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ============================================================
+       CSS VARIABLES — Edit colors here
+    ============================================================ */
+    :root {
+      --sky: #38bdf8;
+      --sky-light: #7dd3fc;
+      --sky-dark: #0ea5e9;
+      --pink: #f472b6;
+      --pink-dark: #ec4899;
+      --pink-light: #fbcfe8;
+      --black: #0a0a0f;
+      --dark: #111827;
+      --card-bg: #141b2d;
+      --card-border: rgba(56, 189, 248, 0.15);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --white: #ffffff;
+      --gradient-1: linear-gradient(135deg, #0a0a0f 0%, #0c1a2e 50%, #0d0f1a 100%);
+      --radius: 18px;
+      --radius-sm: 10px;
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+      --glow-sky: 0 0 20px rgba(56, 189, 248, 0.35);
+      --glow-pink: 0 0 20px rgba(244, 114, 182, 0.35);
+    }
+
+    /* ============================================================
+       RESET & BASE
+    ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--black);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    a { text-decoration: none; color: inherit; }
+    img { display: block; max-width: 100%; }
+
+    /* ============================================================
+       ANIMATED BACKGROUND CANVAS
+    ============================================================ */
+    #bg-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ============================================================
+       PAGE SYSTEM — full screen page transitions
+    ============================================================ */
+    .page {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 2;
+      overflow-y: auto;
+      overflow-x: hidden;
+      background: var(--black);
+    }
+    .page.active {
+      display: block;
+      animation: pageSlideIn 0.38s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+    }
+    .page.slide-out {
+      animation: pageSlideOut 0.28s cubic-bezier(0.4, 0, 1, 1) forwards;
+    }
+    @keyframes pageSlideIn {
+      from { opacity: 0; transform: translateX(55px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes pageSlideOut {
+      from { opacity: 1; transform: translateX(0); }
+      to   { opacity: 0; transform: translateX(-55px); }
+    }
+    /* Landing page — always base layer */
+    #landing {
+      position: relative !important;
+      overflow-y: visible !important;
+    }
+
+    /* ============================================================
+       ===  LANDING PAGE  ===
+    ============================================================ */
+    #landing {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 60px 20px 80px;
+    }
+
+    /* --- Profile Avatar --- */
+    .profile-wrap {
+      position: relative;
+      margin-bottom: 22px;
+    }
+    .profile-ring {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      padding: 3px;
+      background: linear-gradient(135deg, var(--sky), var(--pink));
+      animation: spin-ring 6s linear infinite;
+    }
+    @keyframes spin-ring {
+      0%   { background: linear-gradient(135deg, var(--sky), var(--pink)); }
+      50%  { background: linear-gradient(315deg, var(--pink), var(--sky)); }
+      100% { background: linear-gradient(135deg, var(--sky), var(--pink)); }
+    }
+    .profile-img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--black);
+
+      /* ✏️ EDIT: Replace src below with your actual profile photo URL */
+      background: linear-gradient(135deg, #1e3a5f, #2d1b4e);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+    }
+    .profile-emoji {
+      width: 104px;
+      height: 104px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0c1a2e, #1a0a2e);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 44px;
+      border: 3px solid var(--black);
+    }
+    .live-badge {
+      position: absolute;
+      bottom: 4px;
+      right: 4px;
+      background: var(--pink-dark);
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+      animation: pulse-badge 2s ease-in-out infinite;
+    }
+    @keyframes pulse-badge {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.5); }
+      50% { transform: scale(1.05); box-shadow: 0 0 0 6px rgba(236, 72, 153, 0); }
+    }
+
+    /* --- Creator Info --- */
+    .creator-name {
+      font-family: 'Poppins', sans-serif;
+      font-size: clamp(1.6rem, 5vw, 2.2rem);
+      font-weight: 800;
+      text-align: center;
+      background: linear-gradient(90deg, var(--sky-light), var(--white), var(--pink-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.1;
+      margin-bottom: 8px;
+    }
+    .creator-handle {
+      font-size: 0.9rem;
+      color: var(--sky);
+      font-weight: 500;
+      margin-bottom: 10px;
+    }
+    .creator-bio {
+      font-size: 0.88rem;
+      color: var(--muted);
+      text-align: center;
+      max-width: 340px;
+      line-height: 1.6;
+      margin-bottom: 26px;
+    }
+
+    /* --- Social Bar --- */
+    .social-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 36px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .social-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      border: 1.5px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.05);
+      transition: transform 0.25s cubic-bezier(.34,1.56,.64,1), box-shadow 0.25s, background 0.25s, border-color 0.25s;
+      cursor: pointer;
+    }
+    .social-btn:hover {
+      transform: translateY(-4px) scale(1.12);
+    }
+    /* per-platform colors */
+    .social-btn.yt:hover  { background: #ff0000; border-color: #ff0000; box-shadow: 0 0 16px rgba(255,0,0,0.5); }
+    .social-btn.ig:hover  { background: linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); border-color: #e6683c; box-shadow: 0 0 16px rgba(220,39,67,0.5); }
+    .social-btn.fb:hover  { background: #1877f2; border-color: #1877f2; box-shadow: 0 0 16px rgba(24,119,242,0.5); }
+    .social-btn.pin:hover { background: #e60023; border-color: #e60023; box-shadow: 0 0 16px rgba(230,0,35,0.5); }
+    .social-btn.wa:hover  { background: #25d366; border-color: #25d366; box-shadow: 0 0 16px rgba(37,211,102,0.5); }
+
+    /* --- Divider --- */
+    .divider {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 26px;
+    }
+    .divider-line { flex: 1; height: 1px; background: rgba(255,255,255,0.08); }
+    .divider-text { font-size: 0.72rem; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; white-space: nowrap; }
+
+    /* --- CTA Buttons (Trending + Categories) --- */
+    .links-stack {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* Trending Deals — special full-width hero button */
+    .btn-trending {
+      width: 100%;
+      padding: 18px 24px;
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, var(--sky-dark), #0284c7, var(--pink-dark));
+      background-size: 200% 200%;
+      animation: gradient-shift 4s ease infinite;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      transition: transform 0.25s cubic-bezier(.34,1.56,.64,1), box-shadow 0.25s;
+      box-shadow: 0 4px 24px rgba(56,189,248,0.3);
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-trending::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+      transform: translateX(-100%);
+      transition: transform 0.5s ease;
+    }
+    .btn-trending:hover::before { transform: translateX(100%); }
+    .btn-trending:hover {
+      transform: translateY(-3px) scale(1.01);
+      box-shadow: 0 8px 32px rgba(56,189,248,0.45);
+    }
+    @keyframes gradient-shift {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .btn-trending .btn-icon { font-size: 1.5rem; }
+    .btn-trending .btn-label { flex: 1; text-align: left; }
+    .btn-trending .btn-label span { display: block; font-size: 0.72rem; font-weight: 400; opacity: 0.85; margin-top: 1px; }
+    .btn-trending .btn-arrow { font-size: 1.1rem; opacity: 0.8; }
+
+    /* Category buttons */
+    .btn-cat {
+      width: 100%;
+      padding: 16px 20px;
+      border-radius: var(--radius);
+      background: var(--card-bg);
+      border: 1.5px solid var(--card-border);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: var(--text);
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      transition: transform 0.25s cubic-bezier(.34,1.56,.64,1), box-shadow 0.25s, border-color 0.25s, background 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-cat::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .btn-cat.fashion::after { background: linear-gradient(135deg, rgba(244,114,182,0.08), transparent); }
+    .btn-cat.gadgets::after { background: linear-gradient(135deg, rgba(56,189,248,0.08), transparent); }
+    .btn-cat:hover { transform: translateY(-3px) scale(1.01); }
+    .btn-cat.fashion:hover { border-color: var(--pink); box-shadow: 0 6px 24px rgba(244,114,182,0.25); }
+    .btn-cat.gadgets:hover { border-color: var(--sky); box-shadow: 0 6px 24px rgba(56,189,248,0.25); }
+    .btn-cat:hover::after { opacity: 1; }
+    .cat-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .fashion .cat-icon { background: rgba(244,114,182,0.15); }
+    .gadgets .cat-icon { background: rgba(56,189,248,0.15); }
+    .cat-text { flex: 1; }
+    .cat-text span { display: block; font-size: 0.73rem; font-weight: 400; color: var(--muted); margin-top: 1px; }
+    .cat-arrow { font-size: 1.1rem; color: var(--muted); transition: transform 0.2s, color 0.2s; }
+    .btn-cat:hover .cat-arrow { transform: translateX(4px); }
+    .btn-cat.fashion:hover .cat-arrow { color: var(--pink); }
+    .btn-cat.gadgets:hover .cat-arrow { color: var(--sky); }
+
+    /* --- Footer tag --- */
+    .landing-footer {
+      margin-top: 48px;
+      font-size: 0.72rem;
+      color: var(--muted);
+      opacity: 0.5;
+      text-align: center;
+    }
+
+    /* ============================================================
+       ===  CATEGORY PAGE  ===
+    ============================================================ */
+    #fashion-page, #gadgets-page {
+      min-height: 100vh;
+      padding: 0 0 80px;
+    }
+
+    /* --- Category Page Header --- */
+    .cat-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      background: rgba(10,10,15,0.8);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .back-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+      flex-shrink: 0;
+    }
+    .back-btn:hover { background: rgba(255,255,255,0.12); transform: scale(1.08); }
+    .cat-header-title {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+    .fashion-page .cat-header-title { color: var(--pink); }
+    .gadgets-page .cat-header-title { color: var(--sky); }
+    .cat-header-sub { font-size: 0.75rem; color: var(--muted); margin-top: 1px; }
+
+    /* --- Category Hero Banner --- */
+    .cat-hero {
+      padding: 32px 20px 24px;
+      text-align: center;
+      position: relative;
+    }
+    .cat-hero-emoji { font-size: 3rem; margin-bottom: 10px; }
+    .cat-hero-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: clamp(1.4rem, 4vw, 2rem);
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+    .fashion-hero .cat-hero-title {
+      background: linear-gradient(90deg, var(--pink-light), var(--pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .gadgets-hero .cat-hero-title {
+      background: linear-gradient(90deg, var(--sky-light), var(--sky));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .cat-hero-desc { font-size: 0.85rem; color: var(--muted); max-width: 320px; margin: 0 auto; line-height: 1.6; }
+
+    /* --- Products Grid --- */
+    .products-section { padding: 8px 16px; }
+    .products-label {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+      padding-left: 4px;
+    }
+
+    /* Product cards grid */
+    .products-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    /* --- Product Card --- */
+    .product-card {
+      background: var(--card-bg);
+      border: 1.5px solid var(--card-border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: transform 0.3s cubic-bezier(.34,1.56,.64,1), box-shadow 0.3s, border-color 0.3s;
+      display: flex;
+      flex-direction: column;
+    }
+    .product-card:hover {
+      transform: translateY(-4px);
+    }
+    .fashion-page .product-card:hover {
+      border-color: rgba(244,114,182,0.4);
+      box-shadow: 0 12px 40px rgba(244,114,182,0.15);
+    }
+    .gadgets-page .product-card:hover {
+      border-color: rgba(56,189,248,0.4);
+      box-shadow: 0 12px 40px rgba(56,189,248,0.15);
+    }
+
+    /* Product card layout — stacks on mobile, side-by-side on tablet+ */
+    .product-card-inner {
+      display: flex;
+      flex-direction: column;
+    }
+    @media (min-width: 560px) {
+      .product-card-inner { flex-direction: row; }
+    }
+
+    /* Left: product image */
+    .product-img-wrap {
+      position: relative;
+      flex-shrink: 0;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+    }
+    @media (min-width: 560px) {
+      .product-img-wrap { width: 200px; aspect-ratio: auto; min-height: 200px; }
+    }
+    .product-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+    .product-card:hover .product-img-wrap img { transform: scale(1.06); }
+    .product-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: var(--pink-dark);
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 20px;
+    }
+    .gadgets-page .product-badge { background: var(--sky-dark); }
+
+    /* Right: product info */
+    .product-info {
+      flex: 1;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .product-name {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+    .product-desc {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    .product-price-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .product-price {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--white);
+    }
+    .product-price-old {
+      font-size: 0.82rem;
+      color: var(--muted);
+      text-decoration: line-through;
+    }
+    .product-discount {
+      font-size: 0.72rem;
+      font-weight: 700;
+      background: rgba(56,189,248,0.15);
+      color: var(--sky);
+      padding: 2px 7px;
+      border-radius: 20px;
+    }
+    .fashion-page .product-discount { background: rgba(244,114,182,0.15); color: var(--pink); }
+
+    /* Buy Now button */
+    .btn-buy {
+      margin-top: auto;
+      width: 100%;
+      padding: 12px 18px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      transition: transform 0.2s cubic-bezier(.34,1.56,.64,1), box-shadow 0.2s, opacity 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
+      text-decoration: none;
+      color: #fff;
+    }
+    .btn-buy::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.15);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .btn-buy:hover::before { opacity: 1; }
+    .btn-buy:hover { transform: translateY(-2px) scale(1.02); }
+    .fashion-page .btn-buy {
+      background: linear-gradient(135deg, var(--pink-dark), #be185d);
+      box-shadow: 0 4px 16px rgba(236,72,153,0.35);
+    }
+    .fashion-page .btn-buy:hover { box-shadow: 0 6px 22px rgba(236,72,153,0.5); }
+    .gadgets-page .btn-buy {
+      background: linear-gradient(135deg, var(--sky-dark), #0369a1);
+      box-shadow: 0 4px 16px rgba(14,165,233,0.35);
+    }
+    .gadgets-page .btn-buy:hover { box-shadow: 0 6px 22px rgba(14,165,233,0.5); }
+
+    /* --- Video Embed --- */
+    .product-video-wrap {
+      border-top: 1px solid rgba(255,255,255,0.05);
+      background: #0a0a0f;
+      position: relative;
+    }
+    .video-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 16px 0;
+      font-size: 0.72rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .video-label-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--pink);
+      animation: pulse-dot 1.5s ease-in-out infinite;
+    }
+    .gadgets-page .video-label-dot { background: var(--sky); }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.7); }
+    }
+    .video-container {
+      position: relative;
+      padding-bottom: 56.25%; /* 16:9 */
+      height: 0;
+      overflow: hidden;
+      margin: 8px;
+      border-radius: 10px;
+    }
+    /* For YouTube Shorts — portrait 9:16 */
+    .video-container.portrait {
+      padding-bottom: 177.78%;
+      max-height: 380px;
+      padding-bottom: 0;
+      height: 340px;
+    }
+    .video-container iframe {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      border-radius: 10px;
+    }
+    .video-container.portrait iframe { border-radius: 12px; }
+
+    /* ============================================================
+       TRENDING DEALS PAGE
+    ============================================================ */
+    #trending-page {
+      min-height: 100vh;
+      padding: 0 0 80px;
+    }
+    .trending-hero {
+      padding: 32px 20px 20px;
+      text-align: center;
+    }
+    .trending-hero-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: clamp(1.5rem, 5vw, 2.2rem);
+      font-weight: 800;
+      background: linear-gradient(90deg, var(--sky-light), var(--white), var(--pink-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 6px;
+    }
+    .trending-hero-sub { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+
+    /* Trending deals — horizontal scroll chips */
+    .trending-filters {
+      display: flex;
+      gap: 8px;
+      padding: 14px 16px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .trending-filters::-webkit-scrollbar { display: none; }
+    .filter-chip {
+      padding: 7px 16px;
+      border-radius: 30px;
+      border: 1.5px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.04);
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .filter-chip.active, .filter-chip:hover {
+      border-color: var(--sky);
+      color: var(--sky);
+      background: rgba(56,189,248,0.1);
+    }
+
+    /* Trending deals grid */
+    .trending-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      padding: 0 12px;
+    }
+    @media (min-width: 480px) { .trending-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 700px) { .trending-grid { grid-template-columns: repeat(3, 1fr); } }
+
+    .deal-card {
+      background: var(--card-bg);
+      border: 1.5px solid var(--card-border);
+      border-radius: 14px;
+      overflow: hidden;
+      transition: transform 0.25s cubic-bezier(.34,1.56,.64,1), box-shadow 0.25s, border-color 0.25s;
+      display: flex;
+      flex-direction: column;
+    }
+    .deal-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(56,189,248,0.35);
+      box-shadow: 0 10px 30px rgba(56,189,248,0.12);
+    }
+    .deal-img-wrap {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+      position: relative;
+    }
+    .deal-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.35s ease;
+    }
+    .deal-card:hover .deal-img-wrap img { transform: scale(1.06); }
+    .deal-tag {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 3px 7px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .deal-info {
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+    }
+    .deal-name {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .deal-price-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .deal-price {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--white);
+    }
+    .deal-old {
+      font-size: 0.73rem;
+      color: var(--muted);
+      text-decoration: line-through;
+    }
+    .deal-off {
+      font-size: 0.68rem;
+      font-weight: 700;
+      background: rgba(244,114,182,0.15);
+      color: var(--pink);
+      padding: 2px 6px;
+      border-radius: 20px;
+    }
+    .deal-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      padding: 9px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--sky-dark), var(--pink-dark));
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.2s;
+      text-decoration: none;
+    }
+    .deal-btn:hover { opacity: 0.88; transform: scale(1.03); }
+
+    /* --- Trending Full-Width Product Cards (with video) --- */
+    .trending-products-list {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      padding: 0 14px;
+    }
+    .deal-card-full {
+      background: var(--card-bg);
+      border: 1.5px solid var(--card-border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: transform 0.3s cubic-bezier(.34,1.56,.64,1), box-shadow 0.3s, border-color 0.3s;
+    }
+    .deal-card-full:hover {
+      transform: translateY(-4px);
+      border-color: rgba(56,189,248,0.4);
+      box-shadow: 0 12px 40px rgba(56,189,248,0.12);
+    }
+    .deal-card-inner {
+      display: flex;
+      flex-direction: column;
+    }
+    @media (min-width: 500px) {
+      .deal-card-inner { flex-direction: row; }
+    }
+    .deal-img-wrap-full {
+      position: relative;
+      flex-shrink: 0;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+    }
+    @media (min-width: 500px) {
+      .deal-img-wrap-full { width: 180px; aspect-ratio: auto; min-height: 180px; }
+    }
+    .deal-img-wrap-full img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+    .deal-card-full:hover .deal-img-wrap-full img { transform: scale(1.06); }
+    .deal-img-wrap-full .deal-tag {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      right: auto;
+    }
+    .deal-card-full .deal-info {
+      flex: 1;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .deal-card-full .deal-name {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+    .deal-desc {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    .deal-card-full .deal-btn {
+      margin-top: auto;
+      background: linear-gradient(135deg, var(--sky-dark), var(--pink-dark));
+      padding: 11px 16px;
+      font-size: 0.88rem;
+    }
+    .deal-video-wrap {
+      border-top: 1px solid rgba(255,255,255,0.05);
+      background: #0a0a0f;
+    }
+
+    /* ============================================================
+       RESPONSIVE — wider screens
+    ============================================================ */
+    @media (min-width: 700px) {
+      .products-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (min-width: 1024px) {
+      .products-grid { grid-template-columns: 1fr 1fr 1fr; }
+      .products-section { padding: 8px 32px; }
+      .cat-header { padding: 16px 32px; }
+      .cat-hero { padding: 40px 32px 28px; }
+      .trending-grid { grid-template-columns: repeat(4, 1fr); padding: 0 24px; }
+    }
+
+    /* ============================================================
+       SCROLL REVEAL
+    ============================================================ */
+    .reveal {
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+
+<!-- Animated Background Canvas -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- ==============================================================
+     PAGE 1: LANDING PAGE
+============================================================== -->
+<section id="landing" class="page active">
+
+  <!-- Profile Section -->
+  <div class="profile-wrap">
+    <!--
+      ✏️ EDIT PROFILE IMAGE:
+      Option A — Replace the emoji inside .profile-emoji with your actual photo:
+        <img src="YOUR_PHOTO_URL" class="profile-img" alt="Profile" />
+      Option B — Keep the emoji avatar as-is and just change the emoji.
+    -->
+    <div class="profile-ring">
+      <div class="profile-emoji">🌟</div>
+    </div>
+    <div class="live-badge">DEALS</div>
+  </div>
+
+  <!-- ✏️ EDIT: Your creator name -->
+  <h1 class="creator-name">Alex Deals</h1>
+
+  <!-- ✏️ EDIT: Your handle -->
+  <p class="creator-handle">@alexdeals</p>
+
+  <!-- ✏️ EDIT: Your bio -->
+  <p class="creator-bio">
+    Curating the best deals on fashion & gadgets 🛍️<br>
+    Save big with my handpicked affiliate finds!
+  </p>
+
+  <!-- Social Media Bar -->
+  <!-- ✏️ EDIT: Replace href="#" with your actual social media URLs -->
+  <div class="social-bar">
+    <a href="https://youtube.com/@yourchannel" target="_blank" class="social-btn yt" title="YouTube">
+      <!-- YouTube icon -->
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+      </svg>
+    </a>
+    <a href="https://instagram.com/yourhandle" target="_blank" class="social-btn ig" title="Instagram">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+      </svg>
+    </a>
+    <a href="https://facebook.com/yourpage" target="_blank" class="social-btn fb" title="Facebook">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+      </svg>
+    </a>
+    <a href="https://pinterest.com/yourprofile" target="_blank" class="social-btn pin" title="Pinterest">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 0C5.373 0 0 5.373 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/>
+      </svg>
+    </a>
+    <a href="https://whatsapp.com/channel/yourchannellink" target="_blank" class="social-btn wa" title="WhatsApp Channel">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/>
+      </svg>
+    </a>
+  </div>
+
+  <!-- Main Navigation Links -->
+  <div class="links-stack">
+
+    <!-- ============ TRENDING DEALS BUTTON ============ -->
+    <button class="btn-trending" onclick="showPage('trending-page')">
+      <span class="btn-icon">🔥</span>
+      <span class="btn-label">
+        Trending Deals
+        <span>Top picks updated daily</span>
+      </span>
+      <span class="btn-arrow">→</span>
+    </button>
+
+    <div class="divider">
+      <div class="divider-line"></div>
+      <span class="divider-text">Browse Categories</span>
+      <div class="divider-line"></div>
+    </div>
+
+    <!-- ============ FASHION CATEGORY BUTTON ============ -->
+    <button class="btn-cat fashion" onclick="showPage('fashion-page')">
+      <div class="cat-icon">👗</div>
+      <div class="cat-text">
+        Fashion & Style
+        <span>Clothing, shoes, accessories & more</span>
+      </div>
+      <span class="cat-arrow">›</span>
+    </button>
+
+    <!-- ============ GADGETS CATEGORY BUTTON ============ -->
+    <button class="btn-cat gadgets" onclick="showPage('gadgets-page')">
+      <div class="cat-icon">⚡</div>
+      <div class="cat-text">
+        Gadgets & Tech
+        <span>Phones, earbuds, smart devices & more</span>
+      </div>
+      <span class="cat-arrow">›</span>
+    </button>
+
+  </div>
+
+  <p class="landing-footer">Affiliate links · Prices may vary · Last updated today</p>
+</section>
+
+
+<!-- ==============================================================
+     PAGE 2: TRENDING DEALS
+============================================================== -->
+<section id="trending-page" class="page">
+
+  <div class="cat-header">
+    <button class="back-btn" onclick="showPage('landing')" title="Back">←</button>
+    <div>
+      <div class="cat-header-title" style="color: var(--sky-light)">🔥 Trending Deals</div>
+      <div class="cat-header-sub">Handpicked deals updated daily</div>
+    </div>
+  </div>
+
+  <div class="trending-hero">
+    <div class="cat-hero-emoji">🛒</div>
+    <h2 class="trending-hero-title">Today's Best Deals</h2>
+    <p class="trending-hero-sub">Curated affiliate picks with the biggest savings across all categories.</p>
+  </div>
+
+  <!-- Filter chips -->
+  <div class="trending-filters">
+    <div class="filter-chip active">All</div>
+    <div class="filter-chip">Fashion</div>
+    <div class="filter-chip">Gadgets</div>
+    <div class="filter-chip">Home</div>
+    <div class="filter-chip">Beauty</div>
+    <div class="filter-chip">Sports</div>
+  </div>
+
+  <!--
+    ✏️ HOW TO ADD TRENDING DEAL CARDS:
+    Copy one .deal-card block and update:
+    - img src (product image URL)
+    - .deal-tag text (category label)
+    - .deal-name (product name)
+    - .deal-price (current price)
+    - .deal-old (original price)
+    - .deal-off (discount %)
+    - href on .deal-btn (your affiliate link)
+  -->
+  <!--
+    ✏️ HOW TO ADD/EDIT TRENDING DEAL CARDS:
+    - product-img: product image URL
+    - deal-tag: category label
+    - deal-name: product name
+    - deal-price / deal-old / deal-off: prices
+    - href on deal-btn: your affiliate link
+    - iframe src: YouTube Shorts embed URL → https://www.youtube.com/embed/VIDEO_ID
+  -->
+  <div class="trending-products-list" id="trending-grid">
+
+    <!-- ===== Deal Card 1 ===== -->
+    <div class="deal-card-full reveal">
+      <div class="deal-card-inner">
+        <!-- Product image -->
+        <div class="deal-img-wrap-full">
+          <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&q=80" alt="Smart Watch" loading="lazy" />
+          <span class="deal-tag">⚡ Gadget</span>
+        </div>
+        <!-- Product info -->
+        <div class="deal-info">
+          <div class="deal-name">Premium Smart Watch Pro</div>
+          <p class="deal-desc">AMOLED display, SpO2, heart rate monitor. 7-day battery life.</p>
+          <div class="deal-price-row">
+            <span class="deal-price">₹2,499</span>
+            <span class="deal-old">₹5,999</span>
+            <span class="deal-off">-58%</span>
+          </div>
+          <!-- ✏️ Replace href with your affiliate link -->
+          <a href="#" class="deal-btn" target="_blank">🛍️ Buy Now — Best Price</a>
+        </div>
+      </div>
+      <!-- ✏️ Replace iframe src with your YouTube Shorts embed URL -->
+      <div class="deal-video-wrap">
+        <div class="video-label"><div class="video-label-dot" style="background:var(--sky);"></div>Watch Shorts review</div>
+        <div class="video-container portrait">
+          <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Smart Watch Review" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Deal Card 2 ===== -->
+    <div class="deal-card-full reveal">
+      <div class="deal-card-inner">
+        <div class="deal-img-wrap-full">
+          <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80" alt="Sneakers" loading="lazy" />
+          <span class="deal-tag">👗 Fashion</span>
+        </div>
+        <div class="deal-info">
+          <div class="deal-name">Trendy Sport Sneakers</div>
+          <p class="deal-desc">Ultra-lightweight mesh sole. Sizes 4–11. Perfect for daily wear.</p>
+          <div class="deal-price-row">
+            <span class="deal-price">₹1,299</span>
+            <span class="deal-old">₹2,999</span>
+            <span class="deal-off">-57%</span>
+          </div>
+          <a href="#" class="deal-btn" target="_blank">🛍️ Buy Now — Best Price</a>
+        </div>
+      </div>
+      <div class="deal-video-wrap">
+        <div class="video-label"><div class="video-label-dot" style="background:var(--pink);"></div>Watch Reel review</div>
+        <div class="video-container portrait">
+          <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Sneakers Review" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Deal Card 3 ===== -->
+    <div class="deal-card-full reveal">
+      <div class="deal-card-inner">
+        <div class="deal-img-wrap-full">
+          <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80" alt="Wireless Earbuds" loading="lazy" />
+          <span class="deal-tag">⚡ Gadget</span>
+        </div>
+        <div class="deal-info">
+          <div class="deal-name">Wireless Noise-Cancel Earbuds</div>
+          <p class="deal-desc">40dB ANC, 30hr battery, IPX5 waterproof. One-tap pairing.</p>
+          <div class="deal-price-row">
+            <span class="deal-price">₹999</span>
+            <span class="deal-old">₹2,499</span>
+            <span class="deal-off">-60%</span>
+          </div>
+          <a href="#" class="deal-btn" target="_blank">🛍️ Buy Now — Best Price</a>
+        </div>
+      </div>
+      <div class="deal-video-wrap">
+        <div class="video-label"><div class="video-label-dot" style="background:var(--sky);"></div>Watch Shorts review</div>
+        <div class="video-container portrait">
+          <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Earbuds Review" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Deal Card 4 ===== -->
+    <div class="deal-card-full reveal">
+      <div class="deal-card-inner">
+        <div class="deal-img-wrap-full">
+          <img src="https://images.unsplash.com/photo-1576995853123-5a10305d93c0?w=400&q=80" alt="Handbag" loading="lazy" />
+          <span class="deal-tag">👗 Fashion</span>
+        </div>
+        <div class="deal-info">
+          <div class="deal-name">Designer Leather Handbag</div>
+          <p class="deal-desc">Spacious vegan leather, magnetic closure. 3 interior pockets.</p>
+          <div class="deal-price-row">
+            <span class="deal-price">₹849</span>
+            <span class="deal-old">₹1,999</span>
+            <span class="deal-off">-58%</span>
+          </div>
+          <a href="#" class="deal-btn" target="_blank">🛍️ Buy Now — Best Price</a>
+        </div>
+      </div>
+      <div class="deal-video-wrap">
+        <div class="video-label"><div class="video-label-dot" style="background:var(--pink);"></div>Watch Reel review</div>
+        <div class="video-container portrait">
+          <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Handbag Review" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Deal Card 5 ===== -->
+    <div class="deal-card-full reveal">
+      <div class="deal-card-inner">
+        <div class="deal-img-wrap-full">
+          <img src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=400&q=80" alt="Polaroid Camera" loading="lazy" />
+          <span class="deal-tag">⚡ Gadget</span>
+        </div>
+        <div class="deal-info">
+          <div class="deal-name">Instant Polaroid Camera</div>
+          <p class="deal-desc">Prints instantly! Perfect for parties & travel. Includes 10 film sheets.</p>
+          <div class="deal-price-row">
+            <span class="deal-price">₹3,499</span>
+            <span class="deal-old">₹6,499</span>
+            <span class="deal-off">-46%</span>
+          </div>
+          <a href="#" class="deal-btn" target="_blank">🛍️ Buy Now — Best Price</a>
+        </div>
+      </div>
+      <div class="deal-video-wrap">
+        <div class="video-label"><div class="video-label-dot" style="background:var(--sky);"></div>Watch Shorts review</div>
+        <div class="video-container portrait">
+          <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Camera Review" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Deal Card 6 ===== -->
+    <div class="deal-card-full reveal">
+      <div class="deal-card-inner">
+        <div class="deal-img-wrap-full">
+          <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80" alt="Sunglasses" loading="lazy" />
+          <span class="deal-tag">👗 Fashion</span>
+        </div>
+        <div class="deal-info">
+          <div class="deal-name">UV400 Retro Sunglasses</div>
+          <p class="deal-desc">Polarized lenses, UV400 protection. 5 stylish colors available.</p>
+          <div class="deal-price-row">
+            <span class="deal-price">₹399</span>
+            <span class="deal-old">₹999</span>
+            <span class="deal-off">-60%</span>
+          </div>
+          <a href="#" class="deal-btn" target="_blank">🛍️ Buy Now — Best Price</a>
+        </div>
+      </div>
+      <div class="deal-video-wrap">
+        <div class="video-label"><div class="video-label-dot" style="background:var(--pink);"></div>Watch Reel review</div>
+        <div class="video-container portrait">
+          <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Sunglasses Review" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /trending-products-list -->
+
+</section>
+
+
+<!-- ==============================================================
+     PAGE 3: FASHION CATEGORY
+============================================================== -->
+<section id="fashion-page" class="page fashion-page">
+
+  <div class="cat-header">
+    <button class="back-btn" onclick="showPage('landing')" title="Back">←</button>
+    <div>
+      <div class="cat-header-title">👗 Fashion & Style</div>
+      <div class="cat-header-sub">Curated clothing, shoes & accessories</div>
+    </div>
+  </div>
+
+  <div class="cat-hero fashion-hero">
+    <div class="cat-hero-emoji">✨</div>
+    <h2 class="cat-hero-title">Style That Saves</h2>
+    <p class="cat-hero-desc">Hand-picked fashion finds with unbeatable affiliate prices. Click to grab yours!</p>
+  </div>
+
+  <div class="products-section">
+    <p class="products-label">Featured Products</p>
+
+    <!--
+      ✏️ HOW TO ADD A FASHION PRODUCT:
+      Copy a full .product-card block below and update:
+      1. img src      — product image URL
+      2. .product-badge  — label (e.g. "NEW", "HOT", "SALE")
+      3. .product-name   — product name
+      4. .product-desc   — short description
+      5. .product-price  — current price
+      6. .product-price-old — original price
+      7. .product-discount   — discount %
+      8. href on .btn-buy — your affiliate link
+      9. iframe src in .video-container — YouTube Shorts or Instagram Reel embed URL
+         YouTube Shorts embed: https://www.youtube.com/embed/VIDEO_ID
+         Instagram Reel embed: https://www.instagram.com/reel/REEL_CODE/embed
+    -->
+    <div class="products-grid">
+
+      <!-- ===== FASHION PRODUCT 1 ===== -->
+      <div class="product-card reveal">
+        <div class="product-card-inner">
+          <!-- Product Image -->
+          <div class="product-img-wrap">
+            <img src="https://images.unsplash.com/photo-1551232864-3f0890e580d9?w=500&q=80" alt="Floral Summer Dress" loading="lazy" />
+            <span class="product-badge">🔥 HOT</span>
+          </div>
+          <!-- Product Info -->
+          <div class="product-info">
+            <h3 class="product-name">Floral Midi Summer Dress</h3>
+            <p class="product-desc">Lightweight chiffon, perfect for vacations. Available in 6 colors. Free shipping above ₹999.</p>
+            <div class="product-price-row">
+              <span class="product-price">₹799</span>
+              <span class="product-price-old">₹1,899</span>
+              <span class="product-discount">-58%</span>
+            </div>
+            <!-- ✏️ Replace href with your affiliate link -->
+            <a href="#" target="_blank" class="btn-buy">🛍️ Buy Now — Best Price</a>
+          </div>
+        </div>
+        <!-- Embedded Video (YouTube Shorts / Instagram Reel) -->
+        <div class="product-video-wrap">
+          <div class="video-label">
+            <div class="video-label-dot"></div>
+            Watch reel review
+          </div>
+          <!-- ✏️ Replace src with your YouTube Shorts embed URL: https://www.youtube.com/embed/YOUR_VIDEO_ID -->
+          <div class="video-container portrait">
+            <iframe
+              src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+              title="Product Review"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+              loading="lazy">
+            </iframe>
+          </div>
+        </div>
+      </div><!-- /product-card -->
+
+      <!-- ===== FASHION PRODUCT 2 ===== -->
+      <div class="product-card reveal">
+        <div class="product-card-inner">
+          <div class="product-img-wrap">
+            <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&q=80" alt="Sneakers" loading="lazy" />
+            <span class="product-badge">⭐ TOP</span>
+          </div>
+          <div class="product-info">
+            <h3 class="product-name">Air Cushion Sport Sneakers</h3>
+            <p class="product-desc">Ultra-lightweight sole with breathable mesh. Sizes 4–11. Ideal for daily wear & gym.</p>
+            <div class="product-price-row">
+              <span class="product-price">₹1,199</span>
+              <span class="product-price-old">₹2,799</span>
+              <span class="product-discount">-57%</span>
+            </div>
+            <a href="#" target="_blank" class="btn-buy">🛍️ Buy Now — Best Price</a>
+          </div>
+        </div>
+        <div class="product-video-wrap">
+          <div class="video-label">
+            <div class="video-label-dot"></div>
+            Watch reel review
+          </div>
+          <!-- ✏️ Replace src with your YouTube Shorts / Instagram Reel embed URL -->
+          <div class="video-container portrait">
+            <iframe
+              src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+              title="Product Review"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+              loading="lazy">
+            </iframe>
+          </div>
+        </div>
+      </div><!-- /product-card -->
+
+      <!-- ===== FASHION PRODUCT 3 ===== -->
+      <div class="product-card reveal">
+        <div class="product-card-inner">
+          <div class="product-img-wrap">
+            <img src="https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500&q=80" alt="Leather Bag" loading="lazy" />
+            <span class="product-badge">✨ NEW</span>
+          </div>
+          <div class="product-info">
+            <h3 class="product-name">Vegan Leather Tote Bag</h3>
+            <p class="product-desc">Spacious & stylish. Fits 15" laptop. Magnetic closure, 3 interior pockets.</p>
+            <div class="product-price-row">
+              <span class="product-price">₹649</span>
+              <span class="product-price-old">₹1,499</span>
+              <span class="product-discount">-57%</span>
+            </div>
+            <a href="#" target="_blank" class="btn-buy">🛍️ Buy Now — Best Price</a>
+          </div>
+        </div>
+        <div class="product-video-wrap">
+          <div class="video-label">
+            <div class="video-label-dot"></div>
+            Watch reel review
+          </div>
+          <div class="video-container portrait">
+            <iframe
+              src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+              title="Product Review"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+              loading="lazy">
+            </iframe>
+          </div>
+        </div>
+      </div><!-- /product-card -->
+
+    </div><!-- /products-grid -->
+  </div><!-- /products-section -->
+
+</section>
+
+
+<!-- ==============================================================
+     PAGE 4: GADGETS CATEGORY
+============================================================== -->
+<section id="gadgets-page" class="page gadgets-page">
+
+  <div class="cat-header">
+    <button class="back-btn" onclick="showPage('landing')" title="Back">←</button>
+    <div>
+      <div class="cat-header-title">⚡ Gadgets & Tech</div>
+      <div class="cat-header-sub">Smart devices, audio & more</div>
+    </div>
+  </div>
+
+  <div class="cat-hero gadgets-hero">
+    <div class="cat-hero-emoji">🤖</div>
+    <h2 class="cat-hero-title">Gear Up & Save</h2>
+    <p class="cat-hero-desc">Top-rated tech deals handpicked for maximum value. Limited stock — grab before it's gone!</p>
+  </div>
+
+  <div class="products-section">
+    <p class="products-label">Featured Products</p>
+
+    <!--
+      ✏️ HOW TO ADD A GADGET PRODUCT:
+      Same as fashion products above. Copy a .product-card block and edit the fields.
+    -->
+    <div class="products-grid">
+
+      <!-- ===== GADGET PRODUCT 1 ===== -->
+      <div class="product-card reveal">
+        <div class="product-card-inner">
+          <div class="product-img-wrap">
+            <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80" alt="Wireless Earbuds" loading="lazy" />
+            <span class="product-badge">🔥 VIRAL</span>
+          </div>
+          <div class="product-info">
+            <h3 class="product-name">Pro Wireless Earbuds ANC</h3>
+            <p class="product-desc">40dB Active Noise Cancellation, 30hr battery, IPX5 waterproof. One-tap pairing.</p>
+            <div class="product-price-row">
+              <span class="product-price">₹1,299</span>
+              <span class="product-price-old">₹3,999</span>
+              <span class="product-discount">-68%</span>
+            </div>
+            <!-- ✏️ Replace href with your affiliate link -->
+            <a href="#" target="_blank" class="btn-buy">🛒 Buy Now — Best Price</a>
+          </div>
+        </div>
+        <div class="product-video-wrap">
+          <div class="video-label">
+            <div class="video-label-dot"></div>
+            Watch Shorts review
+          </div>
+          <!-- ✏️ Replace src with your YouTube Shorts embed URL -->
+          <div class="video-container portrait">
+            <iframe
+              src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+              title="Earbuds Review"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+              loading="lazy">
+            </iframe>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== GADGET PRODUCT 2 ===== -->
+      <div class="product-card reveal">
+        <div class="product-card-inner">
+          <div class="product-img-wrap">
+            <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&q=80" alt="Smart Watch" loading="lazy" />
+            <span class="product-badge">⭐ BEST</span>
+          </div>
+          <div class="product-info">
+            <h3 class="product-name">Smart Fitness Watch Ultra</h3>
+            <p class="product-desc">AMOLED display, SpO2, heart rate, GPS. 7-day battery. Works with iOS & Android.</p>
+            <div class="product-price-row">
+              <span class="product-price">₹2,799</span>
+              <span class="product-price-old">₹6,499</span>
+              <span class="product-discount">-57%</span>
+            </div>
+            <a href="#" target="_blank" class="btn-buy">🛒 Buy Now — Best Price</a>
+          </div>
+        </div>
+        <div class="product-video-wrap">
+          <div class="video-label">
+            <div class="video-label-dot"></div>
+            Watch Shorts review
+          </div>
+          <div class="video-container portrait">
+            <iframe
+              src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+              title="Smart Watch Review"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+              loading="lazy">
+            </iframe>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== GADGET PRODUCT 3 ===== -->
+      <div class="product-card reveal">
+        <div class="product-card-inner">
+          <div class="product-img-wrap">
+            <img src="https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=500&q=80" alt="Portable Charger" loading="lazy" />
+            <span class="product-badge">⚡ FAST</span>
+          </div>
+          <div class="product-info">
+            <h3 class="product-name">20000mAh Fast Charging Power Bank</h3>
+            <p class="product-desc">65W PD 3.0 fast charge. Charges laptop + 2 phones simultaneously. LED display.</p>
+            <div class="product-price-row">
+              <span class="product-price">₹1,599</span>
+              <span class="product-price-old">₹3,299</span>
+              <span class="product-discount">-52%</span>
+            </div>
+            <a href="#" target="_blank" class="btn-buy">🛒 Buy Now — Best Price</a>
+          </div>
+        </div>
+        <div class="product-video-wrap">
+          <div class="video-label">
+            <div class="video-label-dot"></div>
+            Watch Shorts review
+          </div>
+          <div class="video-container portrait">
+            <iframe
+              src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+              title="Power Bank Review"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+              loading="lazy">
+            </iframe>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /products-grid -->
+  </div><!-- /products-section -->
+
+</section>
+
+
+<!-- ==============================================================
+     JAVASCRIPT
+============================================================== -->
+<script>
+  /* ============================================================
+     PAGE NAVIGATION
+  ============================================================ */
+  function showPage(pageId) {
+    const current = document.querySelector('.page.active');
+    const target  = document.getElementById(pageId);
+    if (!target || target === current) return;
+
+    if (current && current.id !== 'landing') {
+      // Slide out current page, then show new one
+      current.classList.add('slide-out');
+      current.addEventListener('animationend', () => {
+        current.classList.remove('active', 'slide-out');
+        activatePage(target);
+      }, { once: true });
+    } else {
+      if (current) current.classList.remove('active');
+      activatePage(target);
+    }
+  }
+
+  function activatePage(target) {
+    target.classList.add('active');
+    target.scrollTop = 0;
+    window.scrollTo({ top: 0 });
+    setTimeout(triggerReveal, 60);
+  }
+
+  /* ============================================================
+     SCROLL REVEAL ANIMATION
+  ============================================================ */
+  function triggerReveal() {
+    const reveals = document.querySelectorAll('.page.active .reveal');
+    reveals.forEach((el, i) => {
+      setTimeout(() => el.classList.add('visible'), i * 80);
+    });
+  }
+  // Trigger on load for the landing page
+  window.addEventListener('load', triggerReveal);
+
+  /* ============================================================
+     ANIMATED GRADIENT BACKGROUND (canvas)
+  ============================================================ */
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, orbs;
+
+  function resizeCanvas() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  function createOrbs() {
+    orbs = [
+      { x: W * 0.15, y: H * 0.2,  r: 260, vx: 0.18, vy: 0.12, color: 'rgba(56,189,248,0.06)' },
+      { x: W * 0.8,  y: H * 0.35, r: 300, vx: -0.14, vy: 0.1, color: 'rgba(244,114,182,0.06)' },
+      { x: W * 0.5,  y: H * 0.7,  r: 220, vx: 0.1, vy: -0.16, color: 'rgba(56,189,248,0.04)' },
+      { x: W * 0.1,  y: H * 0.8,  r: 180, vx: 0.2, vy: 0.08,  color: 'rgba(244,114,182,0.04)' },
+    ];
+  }
+
+  function animateBg() {
+    ctx.clearRect(0, 0, W, H);
+    orbs.forEach(orb => {
+      orb.x += orb.vx;
+      orb.y += orb.vy;
+      // bounce
+      if (orb.x < -orb.r || orb.x > W + orb.r) orb.vx *= -1;
+      if (orb.y < -orb.r || orb.y > H + orb.r) orb.vy *= -1;
+      const g = ctx.createRadialGradient(orb.x, orb.y, 0, orb.x, orb.y, orb.r);
+      g.addColorStop(0, orb.color);
+      g.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.beginPath();
+      ctx.arc(orb.x, orb.y, orb.r, 0, Math.PI * 2);
+      ctx.fillStyle = g;
+      ctx.fill();
+    });
+    requestAnimationFrame(animateBg);
+  }
+
+  resizeCanvas();
+  createOrbs();
+  animateBg();
+  window.addEventListener('resize', () => { resizeCanvas(); createOrbs(); });
+
+  /* ============================================================
+     TRENDING FILTER CHIPS (UI only — extend with data filtering)
+  ============================================================ */
+  document.querySelectorAll('.filter-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      // ✏️ OPTIONAL: Add filtering logic here based on chip.textContent
+    });
+  });
+</script>
+
+</body>
+</html>
